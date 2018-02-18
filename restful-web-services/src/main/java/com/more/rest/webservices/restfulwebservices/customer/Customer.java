@@ -2,7 +2,12 @@ package com.more.rest.webservices.restfulwebservices.customer;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.validation.constraints.Size;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel(description="All details about a Customer")
 @Entity
 public class Customer {
 
@@ -10,7 +15,13 @@ public class Customer {
 	@GeneratedValue
 	private Integer Id;
 	private String email;
+	
+	@Size(min=2, message="First Name should have atleast 2 characters")
+	@ApiModelProperty(notes="First Name should have atleast 2 characters")
 	private String firstName;
+	
+	@Size(min=2, message="Last Name should have atleast 2 characters")
+	@ApiModelProperty(notes="Last Name should have atleast 2 characters")
 	private String lastName;
 	
 	
