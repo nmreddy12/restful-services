@@ -29,15 +29,15 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-public class CustomerResource {
+public class AddressResource {
 
 	@Autowired
-	private CustomerRepository customerRepository;
+	private AddressRepository addressRepository;
 
-	@ApiOperation(value = "Get all Customers details", hidden = true)
-	@GetMapping("{siteId}/customers")
-	public  List<Customer> retrieveAllCustomers() {
-		return customerRepository.findAll();
+	@ApiOperation(value = "Get all Address details")
+	@GetMapping("{siteId}/customers/{custId}/addresses")
+	public  List<Address> retrieveAllAddresses(@PathVariable Long custId) {
+		return addressRepository.findByCustomerId(custId);
 
 //		SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("email", "firstName");
 //
@@ -52,26 +52,20 @@ public class CustomerResource {
 		// return customerRepository2.findAll();
 	}
 	
-	@GetMapping("{siteId}/customers/byemail/{email}")
-	public List<Customer> retreiveByEmail(@PathVariable String email){
-		
-		return customerRepository.findByEmail(email);
-		
-	}
 
-	@ApiOperation(value = "Get details of a specific customer")
-	@GetMapping("{siteId}/customers/{id}")
-	public Resource<Customer> retrieveCustomer(@PathVariable Long id) {
-		Optional<Customer> customer = customerRepository.findById(id);
+	@ApiOperation(value = "Get details of a specific address")
+	@GetMapping("{siteId}/customers/{custId}/addresses/{addressId}")
+	public Resource<Address> retrieveCustomer(@PathVariable Long addressId) {
+		Optional<Address> address = addressRepository.findById(addressId);
 
-		if (!customer.isPresent())
-			throw new CustomerNotFoundException("id-" + id);
+		if (!address.isPresent())
+			throw new CustomerNotFoundException("id-" + addressId);
 
 		// "all-users", SERVER_PATH + "/users"
 		// retrieveAllUsers
-		Resource<Customer> resource = new Resource<Customer>(customer.get());
+		Resource<Address> resource = new Resource<Address>(address.get());
 
-		ControllerLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllCustomers());
+		ControllerLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllAddresses(addressId));
 
 		resource.add(linkTo.withRel("all-users"));
 
@@ -81,9 +75,9 @@ public class CustomerResource {
 	}
 
 	@ApiOperation(value = "Delete specific customer account")
-	@DeleteMapping("{siteId}/customers/{id}")
-	public void deleteCustomer(@PathVariable Long id) {
-		customerRepository.deleteById(id);
+	@DeleteMapping("{siteId}/customers/{custId}/addresses/{addressId}")
+	public void deleteCustomer(@PathVariable Long addressId) {
+		addressRepository.deleteById(addressId);
 
 	}
 
@@ -93,9 +87,9 @@ public class CustomerResource {
 
 	// HATEOAS
 	@ApiOperation(value = "Create a new customer account")
-	@PostMapping("{siteId}/customers")
-	public ResponseEntity<Object> createUser(@Valid @RequestBody Customer customer) {
-		Customer savedCustomer = customerRepository.save(customer);
+	@PostMapping("{siteId}/customers/{custId}/addresses")
+	public ResponseEntity<Object> createUser(@Valid @RequestBody Address address) {
+		Address savedCustomer = addressRepository.save(address);
 
 		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
 				.buildAndExpand(savedCustomer.getId()).toUri();
