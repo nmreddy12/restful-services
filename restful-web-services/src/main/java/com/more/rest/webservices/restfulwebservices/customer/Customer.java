@@ -3,11 +3,14 @@ package com.more.rest.webservices.restfulwebservices.customer;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -19,6 +22,10 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description="Customer account details")
+@Table(
+	    uniqueConstraints=
+	        @UniqueConstraint(columnNames={"customer_id", "siteId"})
+	)
 @Entity
 //@JsonFilter(value = "CustomerFilter")
 @JsonIgnoreProperties("password")
@@ -29,15 +36,17 @@ public class Customer {
 	@GeneratedValue
 	@Column(name="customer_id")
 	private Long Id;
+	
 	private String email;
 	private String altEmail;
-	
+		
 	//@Column(nullable=true)
 	private String gender;
 	private String password;
 	//@Column(nullable=true)
 	private String status;
 	private String salt;
+	@Column(columnDefinition="varchar(50) default 'ftd'")
 	private String siteId;
 	//@Column(nullable=true)
 	private String isShared;
@@ -74,7 +83,7 @@ public class Customer {
 	@ApiModelProperty(notes="Last Name should have atleast 2 characters")
 	private String lastName;
 	
-	@OneToMany(fetch=FetchType.LAZY, mappedBy="customerId")
+	@OneToMany(cascade=CascadeType.ALL ,fetch=FetchType.LAZY, mappedBy="customerId")
 	private List<Address> addresses;
 	
 	public Customer() {

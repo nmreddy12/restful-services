@@ -9,7 +9,11 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -25,20 +29,27 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.more.rest.webservices.restfulwebservices.repository.CustomerPageAndSortRepository;
+import com.more.rest.webservices.restfulwebservices.repository.CustomerRepository;
 
 import io.swagger.annotations.ApiOperation;
 
 @RestController
 public class CustomerResource {
 
+	Logger logger = LoggerFactory.getLogger(CustomerResource.class);
 	@Autowired
 	private CustomerRepository customerRepository;
+	
+	@Autowired
+	private CustomerPageAndSortRepository customerPARepository;
 
 	@ApiOperation(value = "Get all Customers details", hidden = true)
 	@GetMapping("{siteId}/customers")
 	public  List<Customer> retrieveAllCustomers() {
+		logger.info("retrieveAllCustomers..");
 		return customerRepository.findAll();
-
+		
 //		SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("email", "firstName");
 //
 //		FilterProvider filters = new SimpleFilterProvider().addFilter("CustomerFilter", filter);
@@ -50,6 +61,12 @@ public class CustomerResource {
 		//return customers;
 
 		// return customerRepository2.findAll();
+	}
+	
+	@SuppressWarnings("deprecation")
+	@GetMapping("{siteId}/customers/page")
+	public Page<Customer> getAllCustomers(){
+		return customerPARepository.findAll(new PageRequest(1, 5));
 	}
 	
 	@GetMapping("{siteId}/customers/byemail/{email}")
